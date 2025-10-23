@@ -8,11 +8,11 @@ export const WORKOUT_COLORS: Record<string, string> = {
     Otro: '#9818d6',
 }
 
-// Configuración de íconos usando vector-icons
-export const WORKOUT_ICONS: Record<string, { library: string; name: string }> = {
-  Cardio: { library: 'MaterialCommunityIcons', name: 'run' },
-  Fuerza: { library: 'MaterialCommunityIcons', name: 'dumbbell' },
-  Yoga: { library: 'MaterialCommunityIcons', name: 'yoga' },
-  Funcional: { library: 'MaterialCommunityIcons', name: 'human-handsup' },
-  Otro: { library: 'Ionicons', name: 'fitness' },
+// Nombres simples de iconos de Ionicons
+export const WORKOUT_ICONS: Record<string, any> = {
+  Cardio: 'fitness-outline',
+  Fuerza: 'barbell-outline',
+  Yoga: 'flower-outline',
+  Funcional: 'body-outline',
+  Otro: 'flash-outline',
 };

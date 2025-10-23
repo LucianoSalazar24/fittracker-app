@@ -1,40 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Workout } from '../types/types';
 import { WORKOUT_COLORS, WORKOUT_ICONS } from '../constants/constants';
 import { formatDate, formatDuration } from '../utils/dateUtils';
 
 type Props = {
-  workout: Workout;
-  onPress: () => void;
+  workout: Workout;      //recibe el objeto workout
+  onPress: () => void;  //recibe la funcion cuando se toca
 };
 
 const WorkoutCard: React.FC<Props> = ({ workout, onPress }) => {
   const color = WORKOUT_COLORS[workout.type];
-  const iconConfig = WORKOUT_ICONS[workout.type];
-
-  // Renderizar el ícono según la librería
-  const renderIcon = () => {
-    if (iconConfig.library === 'MaterialCommunityIcons') {
-      return (
-        <MaterialCommunityIcons 
-          name={iconConfig.name as any} 
-          size={32} 
-          color={color} 
-        />
-      );
-    } else if (iconConfig.library === 'Ionicons') {
-      return (
-        <Ionicons 
-          name={iconConfig.name as any} 
-          size={32} 
-          color={color} 
-        />
-      );
-    }
-    return null;
-  };
+  const iconName = WORKOUT_ICONS[workout.type];
 
   return (
     <TouchableOpacity 
@@ -43,10 +21,8 @@ const WorkoutCard: React.FC<Props> = ({ workout, onPress }) => {
       activeOpacity={0.7}
     >
       <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          {renderIcon()}
-        </View>
-        <View style={styles.headerText}>
+        <Ionicons name={iconName} size={32} color={color} />
+        <View style={styles.info}>
           <Text style={styles.type}>{workout.type}</Text>
           <Text style={styles.date}>{formatDate(workout.date)}</Text>
         </View>
@@ -79,22 +55,20 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
-  iconContainer: {
-    marginRight: 12,
-  },
-  headerText: {
+  info: {
     flex: 1,
   },
   type: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 2,
   },
   date: {
     fontSize: 14,
     color: '#666',
+    marginTop: 2,
   },
   duration: {
     fontSize: 16,
@@ -105,7 +79,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     color: '#555',
-    lineHeight: 20,
   },
 });
 
