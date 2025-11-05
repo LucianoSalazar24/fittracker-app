@@ -1,41 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
+import { loadWorkouts, saveWorkouts } from '../utils/storage';
 
 const ThisWeekScreen = () => {
   // array de entrenamientos
-  const [workouts, setWorkouts] = useState<Workout[]>([
-    {
-      id: '1',
-      type: 'Cardio',
-      date: '2025-10-20',
-      duration: 45,
-      notes: 'Running matutino por el parque'
-    },
-    {
-      id: '2',
-      type: 'Fuerza',
-      date: '2025-10-22',
-      duration: 60,
-      notes: 'Día de espalda y biceps'
-    },
-    {
-      id: '3',
-      type: 'Yoga',
-      date: '2025-10-23',
-      duration: 30,
-    },
-    {
-      id: '4',
-      type:'Funcional',
-      date:'2025-10-24',
-      duration: 40,
-      notes:'Circuito Funcional'
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Cargar datos al iniciar la app
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    const savedWorkouts = await loadWorkouts();
+    
+    // Si no hay datos guardados, usar datos de ejemplo
+    if (savedWorkouts.length === 0) {
+      const initialWorkouts: Workout[] = [
+        {
+          id: '1',
+          type: 'Cardio',
+          date: '2025-10-20',
+          duration: 45,
+          notes: 'Running matutino por el parque'
+        },
+        {
+          id: '2',
+          type: 'Fuerza',
+          date: '2025-10-22',
+          duration: 60,
+          notes: 'Día de espalda y biceps'
+        },
+        {
+          id: '3',
+          type: 'Yoga',
+          date: '2025-10-23',
+          duration: 30,
+        },
+        {
+          id: '4',
+          type: 'Funcional',
+          date: '2025-10-24',
+          duration: 40,
+          notes: 'Circuito de Funcional'
+        }
+      ];
+      setWorkouts(initialWorkouts);
+      await saveWorkouts(initialWorkouts);
+    } else {
+      setWorkouts(savedWorkouts);
     }
-  ]);
+    
+    setLoading(false);
+  };
+
+  // Guardar automáticamente cuando cambian los workouts
+  useEffect(() => {
+    if (!loading) {
+      saveWorkouts(workouts);
+    }
+  }, [workouts]);
 
   // Función que se ejecuta al tocar una tarjeta
   const handleWorkoutPress = (workout: Workout) => {
@@ -50,8 +79,19 @@ const ThisWeekScreen = () => {
     Alert.alert('Próximamente', 'Acá vas a poder agregar un nuevo entrenamiento');
   };
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Cargando entrenamientos...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
         <Text style={styles.title}>Esta Semana</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddPress}>
@@ -109,6 +149,15 @@ const styles = StyleSheet.create({
   },
   emptyList: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
   },
 });
 
