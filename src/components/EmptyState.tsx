@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
-  icon: string;
+  iconName: string;
   title: string;
   message: string;
 };
 
-const EmptyState: React.FC<Props> = ({ icon, title, message }) => {
+const EmptyState: React.FC<Props> = ({ iconName, title, message }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>{icon}</Text>
+      <Ionicons name={iconName as any} size={80} color="#ccc" />
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
     </View>
@@ -24,14 +25,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
-  icon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
   title: {
     fontSize: 20,
     fontWeight: '600',
     color: '#333',
+    marginTop: 16,
     marginBottom: 8,
     textAlign: 'center',
   },
