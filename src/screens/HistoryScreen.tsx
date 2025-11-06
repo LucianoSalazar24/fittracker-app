@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
@@ -42,16 +43,16 @@ const HistoryScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando historial...</Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
 
       <View style={styles.header}>
         <Text style={styles.title}>Historial</Text>
@@ -76,7 +77,7 @@ const HistoryScreen = () => {
         }
         contentContainerStyle={workouts.length === 0 ? styles.emptyList : styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

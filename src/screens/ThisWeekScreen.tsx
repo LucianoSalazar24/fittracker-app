@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
@@ -81,16 +82,16 @@ const ThisWeekScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando entrenamientos...</Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
 
       <View style={styles.header}>
         <Text style={styles.title}>Esta Semana</Text>
@@ -117,7 +118,7 @@ const ThisWeekScreen = () => {
         }
         contentContainerStyle={workouts.length === 0 ? styles.emptyList : styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

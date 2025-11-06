@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Workout, WorkoutType } from '../types/types';
 import { loadWorkouts } from '../utils/storage';
@@ -44,109 +45,111 @@ const StatsScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando estadísticas...</Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Estadísticas</Text>
-      </View>
-
-      {/* Resumen general */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumen General</Text>
-        
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Ionicons name="barbell" size={32} color="#007AFF" />
-            <Text style={styles.statValue}>{totalWorkouts}</Text>
-            <Text style={styles.statLabel}>Entrenamientos</Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <Ionicons name="time" size={32} color="#FF6B6B" />
-            <Text style={styles.statValue}>{formatDuration(totalMinutes)}</Text>
-            <Text style={styles.statLabel}>Tiempo Total</Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <Ionicons name="stats-chart" size={32} color="#4ECDC4" />
-            <Text style={styles.statValue}>{formatDuration(averageDuration)}</Text>
-            <Text style={styles.statLabel}>Promedio</Text>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Estadísticas</Text>
         </View>
-      </View>
 
-      {/* Estadísticas por tipo */}
-      {totalWorkouts > 0 && (
+        {/* Resumen general */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Por Tipo de Ejercicio</Text>
+          <Text style={styles.sectionTitle}>Resumen General</Text>
           
-          {Object.entries(statsByType).map(([type, stats]) => {
-            const color = WORKOUT_COLORS[type];
-            const iconName = WORKOUT_ICONS[type];
-            const percentage = Math.round((stats.count / totalWorkouts) * 100);
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Ionicons name="barbell" size={32} color="#007AFF" />
+              <Text style={styles.statValue}>{totalWorkouts}</Text>
+              <Text style={styles.statLabel}>Entrenamientos</Text>
+            </View>
 
-            return (
-              <View key={type} style={styles.typeCard}>
-                <View style={styles.typeHeader}>
-                  <View style={styles.typeInfo}>
-                    <Ionicons name={iconName} size={24} color={color} />
-                    <Text style={styles.typeName}>{type}</Text>
-                  </View>
-                  <Text style={styles.typePercentage}>{percentage}%</Text>
-                </View>
+            <View style={styles.statCard}>
+              <Ionicons name="time" size={32} color="#FF6B6B" />
+              <Text style={styles.statValue}>{formatDuration(totalMinutes)}</Text>
+              <Text style={styles.statLabel}>Tiempo Total</Text>
+            </View>
 
-                <View style={styles.typeStats}>
-                  <View style={styles.typeStat}>
-                    <Text style={styles.typeStatValue}>{stats.count}</Text>
-                    <Text style={styles.typeStatLabel}>sesiones</Text>
-                  </View>
-                  <View style={styles.typeStat}>
-                    <Text style={styles.typeStatValue}>{formatDuration(stats.totalMinutes)}</Text>
-                    <Text style={styles.typeStatLabel}>total</Text>
-                  </View>
-                  <View style={styles.typeStat}>
-                    <Text style={styles.typeStatValue}>
-                      {formatDuration(Math.round(stats.totalMinutes / stats.count))}
-                    </Text>
-                    <Text style={styles.typeStatLabel}>promedio</Text>
-                  </View>
-                </View>
-
-                {/* Barra de progreso */}
-                <View style={styles.progressBar}>
-                  <View 
-                    style={[
-                      styles.progressFill, 
-                      { width: `${percentage}%`, backgroundColor: color }
-                    ]} 
-                  />
-                </View>
-              </View>
-            );
-          })}
+            <View style={styles.statCard}>
+              <Ionicons name="stats-chart" size={32} color="#4ECDC4" />
+              <Text style={styles.statValue}>{formatDuration(averageDuration)}</Text>
+              <Text style={styles.statLabel}>Promedio</Text>
+            </View>
+          </View>
         </View>
-      )}
 
-      {/* Mensaje si no hay datos */}
-      {totalWorkouts === 0 && (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="stats-chart-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyTitle}>Sin estadísticas</Text>
-          <Text style={styles.emptyMessage}>
-            Comenzá a registrar entrenamientos para ver tus estadísticas
-          </Text>
-        </View>
-      )}
-    </ScrollView>
+        {/* Estadísticas por tipo */}
+        {totalWorkouts > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Por Tipo de Ejercicio</Text>
+            
+            {Object.entries(statsByType).map(([type, stats]) => {
+              const color = WORKOUT_COLORS[type];
+              const iconName = WORKOUT_ICONS[type];
+              const percentage = Math.round((stats.count / totalWorkouts) * 100);
+
+              return (
+                <View key={type} style={styles.typeCard}>
+                  <View style={styles.typeHeader}>
+                    <View style={styles.typeInfo}>
+                      <Ionicons name={iconName} size={24} color={color} />
+                      <Text style={styles.typeName}>{type}</Text>
+                    </View>
+                    <Text style={styles.typePercentage}>{percentage}%</Text>
+                  </View>
+
+                  <View style={styles.typeStats}>
+                    <View style={styles.typeStat}>
+                      <Text style={styles.typeStatValue}>{stats.count}</Text>
+                      <Text style={styles.typeStatLabel}>sesiones</Text>
+                    </View>
+                    <View style={styles.typeStat}>
+                      <Text style={styles.typeStatValue}>{formatDuration(stats.totalMinutes)}</Text>
+                      <Text style={styles.typeStatLabel}>total</Text>
+                    </View>
+                    <View style={styles.typeStat}>
+                      <Text style={styles.typeStatValue}>
+                        {formatDuration(Math.round(stats.totalMinutes / stats.count))}
+                      </Text>
+                      <Text style={styles.typeStatLabel}>promedio</Text>
+                    </View>
+                  </View>
+
+                  {/* Barra de progreso */}
+                  <View style={styles.progressBar}>
+                    <View 
+                      style={[
+                        styles.progressFill, 
+                        { width: `${percentage}%`, backgroundColor: color }
+                      ]} 
+                    />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Mensaje si no hay datos */}
+        {totalWorkouts === 0 && (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="stats-chart-outline" size={64} color="#ccc" />
+            <Text style={styles.emptyTitle}>Sin estadísticas</Text>
+            <Text style={styles.emptyMessage}>
+              Comenzá a registrar entrenamientos para ver tus estadísticas
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -154,6 +157,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     paddingHorizontal: 16,
