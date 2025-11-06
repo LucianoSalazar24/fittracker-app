@@ -136,16 +136,18 @@ const AddWorkoutScreen = () => {
                 selectedValue={type}
                 onValueChange={(value) => setType(value as WorkoutType)}
                 style={styles.picker}
+                itemStyle={styles.pickerItem}
               >
                 {WORKOUT_TYPES.map((workoutType) => (
                   <Picker.Item 
                     key={workoutType} 
                     label={workoutType} 
-                    value={workoutType} 
+                    value={workoutType}
                   />
                 ))}
               </Picker>
             </View>
+            <Text style={styles.selectedType}>Seleccionado: {type}</Text>
           </View>
 
           {/* Duración */}
@@ -264,6 +266,15 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+  },
+  pickerItem: {
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedType: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 8,
   },
   input: {
     backgroundColor: '#fff',

@@ -41,14 +41,14 @@ const ThisWeekScreen = () => {
           type: 'Cardio',
           date: '2025-10-20',
           duration: 45,
-          notes: 'Running matutino por el parque'
+          notes: 'Corrida matutina por el parque'
         },
         {
           id: '2',
           type: 'Fuerza',
           date: '2025-10-22',
           duration: 60,
-          notes: 'Día de espalda y biceps'
+          notes: 'Día de piernas intenso'
         },
         {
           id: '3',
@@ -67,7 +67,11 @@ const ThisWeekScreen = () => {
       setWorkouts(initialWorkouts);
       await saveWorkouts(initialWorkouts);
     } else {
-      setWorkouts(savedWorkouts);
+      // Ordenar por fecha: más reciente primero
+      const sortedWorkouts = savedWorkouts.sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setWorkouts(sortedWorkouts);
     }
     
     setLoading(false);
