@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Workout } from '../types/types';
+import { Workout, RootStackParamList } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
 import { loadWorkouts, saveWorkouts } from '../utils/storage';
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
+
 const ThisWeekScreen = () => {
-  // array de entrenamientos
+  const navigation = useNavigation<NavigationProp>();
+  
+  // Estado: array de entrenamientos
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,6 +22,13 @@ const ThisWeekScreen = () => {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // Recargar datos cuando la pantalla recibe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadInitialData();
+    }, [])
+  );
 
   const loadInitialData = async () => {
     const savedWorkouts = await loadWorkouts();
@@ -48,7 +61,7 @@ const ThisWeekScreen = () => {
           type: 'Funcional',
           date: '2025-10-24',
           duration: 40,
-          notes: 'Circuito de Funcional'
+          notes: 'Circuito de funcional en casa'
         }
       ];
       setWorkouts(initialWorkouts);
@@ -60,13 +73,6 @@ const ThisWeekScreen = () => {
     setLoading(false);
   };
 
-  // Guardar automáticamente cuando cambian los workouts
-  useEffect(() => {
-    if (!loading) {
-      saveWorkouts(workouts);
-    }
-  }, [workouts]);
-
   // Función que se ejecuta al tocar una tarjeta
   const handleWorkoutPress = (workout: Workout) => {
     Alert.alert(
@@ -77,7 +83,7 @@ const ThisWeekScreen = () => {
 
   // Función que se ejecuta al tocar el botón +
   const handleAddPress = () => {
-    Alert.alert('Próximamente', 'Acá vas a poder agregar un nuevo entrenamiento');
+    navigation.navigate('AddWorkout');
   };
 
   if (loading) {
@@ -92,7 +98,7 @@ const ThisWeekScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-
+      {/* Header con título y botón */}
       <View style={styles.header}>
         <Text style={styles.title}>Esta Semana</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleAddPress}>
@@ -100,6 +106,7 @@ const ThisWeekScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Lista de entrenamientos */}
       <FlatList
         data={workouts}
         keyExtractor={(item) => item.id}

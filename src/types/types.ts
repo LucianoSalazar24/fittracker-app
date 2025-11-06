@@ -11,9 +11,9 @@ export interface Workout {
 }
 
 // Voy a definir que pantallas existen en el navigate y los parametros que acepta
-export type RootParamList = {
+export type RootStackParamList = {
     MainTabs: undefined;
-    AddWorkout: { workoutToEdit?: Workout };
+    AddWorkout: undefined;
     WorkoutDetail: { workout: Workout };
 };
 

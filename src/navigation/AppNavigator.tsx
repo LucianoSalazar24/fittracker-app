@@ -1,14 +1,18 @@
 import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ThisWeekScreen from '../screens/ThisWeekScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import StatsScreen from '../screens/StatsScreen';
-import { MainTabParamList } from '../types/types';
+import AddWorkoutScreen from '../screens/AddWorkoutScreen';
+import { MainTabParamList, RootStackParamList } from '../types/types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const AppNavigator = () => {
+// Tabs Navigator (las 3 pestañas principales)
+const MainTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -60,6 +64,27 @@ const AppNavigator = () => {
         }}
       />
     </Tab.Navigator>
+  );
+};
+
+// Stack Navigator (envuelve tabs + pantallas modales)
+const AppNavigator = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen 
+        name="AddWorkout" 
+        component={AddWorkoutScreen}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
   );
 };
 
