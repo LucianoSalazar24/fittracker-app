@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { WorkoutType, Workout, RootStackParamList } from '../types/types';
@@ -14,7 +13,9 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddWorkout'
 const AddWorkoutScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   
-  const [type, setType] = useState<WorkoutType>('Cardio');
+  const [type, setType] = useState<WorkoutType>(
+    WORKOUT_TYPES[0] ?? ('Cardio' as WorkoutType)
+  );
   const [duration, setDuration] = useState('');
   const [date, setDate] = useState(getTodayISO());
   const [notes, setNotes] = useState('');
@@ -131,23 +132,27 @@ const AddWorkoutScreen = () => {
           {/* Tipo de ejercicio */}
           <View style={styles.field}>
             <Text style={styles.label}>Tipo de ejercicio *</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={type}
-                onValueChange={(value) => setType(value as WorkoutType)}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                {WORKOUT_TYPES.map((workoutType) => (
-                  <Picker.Item 
-                    key={workoutType} 
-                    label={workoutType} 
-                    value={workoutType}
-                  />
-                ))}
-              </Picker>
+            <View style={styles.typeSelector}>
+              {WORKOUT_TYPES.map((workoutType) => (
+                <TouchableOpacity
+                  key={workoutType}
+                  style={[
+                    styles.typeButton,
+                    type === workoutType && styles.typeButtonActive,
+                  ]}
+                  onPress={() => setType(workoutType as WorkoutType)}
+                >
+                  <Text
+                    style={[
+                      styles.typeButtonText,
+                      type === workoutType && styles.typeButtonTextActive,
+                    ]}
+                  >
+                    {workoutType}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            <Text style={styles.selectedType}>Seleccionado: {type}</Text>
           </View>
 
           {/* Duración */}
@@ -263,18 +268,49 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     overflow: 'hidden',
+    minHeight: 50,
   },
   picker: {
-    height: 50,
+    height: 180,
+    width: '100%',
   },
   pickerItem: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 18,
   },
   selectedType: {
-    fontSize: 14,
-    color: '#666',
     marginTop: 8,
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  // Added styles for the custom type selector and buttons
+  typeSelector: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  typeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  typeButtonActive: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  typeButtonText: {
+    color: '#333',
+    fontSize: 14,
+  },
+  typeButtonTextActive: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   input: {
     backgroundColor: '#fff',

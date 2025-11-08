@@ -69,7 +69,7 @@ const StatsScreen = () => {
             <View style={styles.statCard}>
               <Ionicons name="barbell" size={32} color="#007AFF" />
               <Text style={styles.statValue}>{totalWorkouts}</Text>
-              <Text style={styles.statLabel}>Entrenamientos</Text>
+              <Text style={styles.statLabel}>Entrenamientos Totales</Text>
             </View>
 
             <View style={styles.statCard}>
@@ -185,13 +185,15 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   statCard: {
     flex: 1,
+    minWidth: 105,
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -210,6 +212,9 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
     textAlign: 'center',
+    flexWrap: 'wrap',
+    width: '100%',
+    lineHeight: 16,
   },
   typeCard: {
     backgroundColor: '#fff',
@@ -231,12 +236,12 @@ const styles = StyleSheet.create({
   typeInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   typeName: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
+    marginLeft: 8,
   },
   typePercentage: {
     fontSize: 16,
@@ -257,9 +262,10 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   typeStatLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#666',
-    marginTop: 2,
+    marginTop: 4,
+    textAlign: 'center',
   },
   progressBar: {
     height: 6,

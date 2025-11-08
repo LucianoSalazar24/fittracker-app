@@ -1,5 +1,8 @@
 export const formatDate = (isoDate: string): string => {
-  const date = new Date(isoDate);
+  // Usar fecha local en vez de UTC para evitar problemas de zona horaria
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  
   const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
   
@@ -7,7 +10,8 @@ export const formatDate = (isoDate: string): string => {
 };
 
 export const isThisWeek = (isoDate: string): boolean => {
-  const date = new Date(isoDate);
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
   const today = new Date();
   
   // Obtener el lunes de esta semana
@@ -24,7 +28,11 @@ export const isThisWeek = (isoDate: string): boolean => {
 };
 
 export const getTodayISO = (): string => {
-  return new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 export const formatDuration = (minutes: number): string => {
