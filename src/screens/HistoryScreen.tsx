@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
-import { loadWorkouts } from '../utils/storage';
+import { loadWorkouts, saveWorkouts} from '../utils/storage';
 
 const HistoryScreen = () => {
+  const navigation = useNavigation();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,17 +18,15 @@ const HistoryScreen = () => {
   }, []);
 
   // Recargar datos cuando la pantalla recibe foco
-  useEffect(() => {
-    const interval = setInterval(() => {
+  useFocusEffect(
+    React.useCallback(() => {
       loadData();
-    }, 1000); // Actualiza cada segundo
-
-    return () => clearInterval(interval);
-  }, []);
+    }, [])
+  );
 
   const loadData = async () => {
     const savedWorkouts = await loadWorkouts();
-    // Ordenado por fecha, desde el mas reciente
+    // Ordenar por fecha (más reciente primero)
     const sortedWorkouts = savedWorkouts.sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
@@ -37,7 +37,57 @@ const HistoryScreen = () => {
   const handleWorkoutPress = (workout: Workout) => {
     Alert.alert(
       workout.type,
-      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`
+      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`,
+      [
+        {
+          text: 'Editar',
+          onPress: () => handleEdit(workout),
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => handleDelete(workout),
+          style: 'destructive',
+        },
+        {
+          text: 'Cerrar',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const handleEdit = (workout: Workout) => {
+    (navigation as any).navigate('AddWorkout', { workoutToEdit: workout });
+  };
+
+  const handleDelete = (workout: Workout) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que querés eliminar este entrenamiento?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const existingWorkouts = await loadWorkouts();
+              const updatedWorkouts = existingWorkouts.filter(w => w.id !== workout.id);
+              await saveWorkouts(updatedWorkouts);
+              
+              await loadData();
+              
+              Alert.alert('Eliminado', 'El entrenamiento fue eliminado correctamente');
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo eliminar el entrenamiento');
+              console.error(error);
+            }
+          },
+        },
+      ]
     );
   };
 
@@ -53,12 +103,13 @@ const HistoryScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Historial</Text>
         <Text style={styles.count}>{workouts.length} entrenamientos</Text>
       </View>
 
+      {/* Lista de todos los entrenamientos */}
       <FlatList
         data={workouts}
         keyExtractor={(item) => item.id}

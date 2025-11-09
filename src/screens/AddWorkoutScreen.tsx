@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { WorkoutType, Workout, RootStackParamList } from '../types/types';
 import { WORKOUT_TYPES } from '../constants/constants';
@@ -12,13 +12,24 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddWorkout'
 
 const AddWorkoutScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'AddWorkout'>>();
+  
+  // Detectar si estamos editando
+  const workoutToEdit = route.params?.workoutToEdit;
+  const isEditing = !!workoutToEdit;
   
   const [type, setType] = useState<WorkoutType>(
-    WORKOUT_TYPES[0] ?? ('Cardio' as WorkoutType)
+    workoutToEdit?.type ?? (WORKOUT_TYPES[0] ?? ('Cardio' as WorkoutType))
   );
-  const [duration, setDuration] = useState('');
-  const [date, setDate] = useState(getTodayISO());
-  const [notes, setNotes] = useState('');
+  const [duration, setDuration] = useState(
+    workoutToEdit?.duration.toString() ?? ''
+  );
+  const [date, setDate] = useState(
+    workoutToEdit?.date ?? getTodayISO()
+  );
+  const [notes, setNotes] = useState(
+    workoutToEdit?.notes ?? ''
+  );
   
   // Estados de error
   const [durationError, setDurationError] = useState('');
@@ -85,26 +96,48 @@ const AddWorkoutScreen = () => {
       // Cargar workouts existentes
       const existingWorkouts = await loadWorkouts();
       
-      // Crear nuevo workout con ID único
-      const newWorkout: Workout = {
-        id: Date.now().toString(),
-        type,
-        duration: parseInt(duration),
-        date,
-        notes: notes.trim() || undefined,
-      };
+      if (isEditing && workoutToEdit) {
+        // MODO EDICIÓN: Actualizar workout existente
+        const updatedWorkouts = existingWorkouts.map(w =>
+          w.id === workoutToEdit.id
+            ? {
+                ...w,
+                type,
+                duration: parseInt(duration),
+                date,
+                notes: notes.trim() || undefined,
+              }
+            : w
+        );
+        
+        await saveWorkouts(updatedWorkouts);
+        
+        Alert.alert('¡Actualizado!', 'El entrenamiento fue actualizado correctamente', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      } else {
+        // MODO CREAR: Agregar nuevo workout
+        const newWorkout: Workout = {
+          id: Date.now().toString(),
+          type,
+          duration: parseInt(duration),
+          date,
+          notes: notes.trim() || undefined,
+        };
 
-      // Agregar al array y guardar
-      const updatedWorkouts = [...existingWorkouts, newWorkout];
-      await saveWorkouts(updatedWorkouts);
+        const updatedWorkouts = [...existingWorkouts, newWorkout];
+        await saveWorkouts(updatedWorkouts);
 
-      // Mostrar confirmación y volver
-      Alert.alert('¡Éxito!', 'Entrenamiento guardado correctamente', [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+        Alert.alert('¡Éxito!', 'Entrenamiento guardado correctamente', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      }
     } catch (error) {
       Alert.alert('Error', 'No se pudo guardar el entrenamiento');
       console.error(error);
@@ -123,7 +156,9 @@ const AddWorkoutScreen = () => {
           <TouchableOpacity onPress={handleCancel} style={styles.cancelButton}>
             <Text style={styles.cancelText}>Cancelar</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Nuevo Entrenamiento</Text>
+          <Text style={styles.title}>
+            {isEditing ? 'Editar Entrenamiento' : 'Nuevo Entrenamiento'}
+          </Text>
           <View style={styles.placeholder} />
         </View>
 
@@ -262,55 +297,32 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 8,
   },
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'hidden',
-    minHeight: 50,
-  },
-  picker: {
-    height: 180,
-    width: '100%',
-  },
-  pickerItem: {
-    fontSize: 18,
-  },
-  selectedType: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  // Added styles for the custom type selector and buttons
   typeSelector: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 8,
+    gap: 8,
   },
   typeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     backgroundColor: '#fff',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#ddd',
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 100,
+    alignItems: 'center',
   },
   typeButtonActive: {
     backgroundColor: '#007AFF',
     borderColor: '#007AFF',
   },
   typeButtonText: {
+    fontSize: 16,
     color: '#333',
-    fontSize: 14,
+    fontWeight: '600',
   },
   typeButtonTextActive: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
   },
   input: {
     backgroundColor: '#fff',

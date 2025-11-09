@@ -2,17 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Workout, RootStackParamList } from '../types/types';
+import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
 import { loadWorkouts, saveWorkouts } from '../utils/storage';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
-
 const ThisWeekScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation();
   
   // Estado: array de entrenamientos
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -41,14 +38,14 @@ const ThisWeekScreen = () => {
           type: 'Cardio',
           date: '2025-10-20',
           duration: 45,
-          notes: 'Corrida matutina por el parque'
+          notes: 'Running matutino por el parque'
         },
         {
           id: '2',
           type: 'Fuerza',
           date: '2025-10-22',
           duration: 60,
-          notes: 'Día de piernas intenso'
+          notes: 'Día de espalda y biceps'
         },
         {
           id: '3',
@@ -61,7 +58,7 @@ const ThisWeekScreen = () => {
           type: 'Funcional',
           date: '2025-10-24',
           duration: 40,
-          notes: 'Circuito de funcional en casa'
+          notes: 'Circuito de Funcional'
         }
       ];
       setWorkouts(initialWorkouts);
@@ -77,17 +74,70 @@ const ThisWeekScreen = () => {
     setLoading(false);
   };
 
-  // Función que se ejecuta al tocar una tarjeta
+  // Función que muestra opciones al tocar una tarjeta
   const handleWorkoutPress = (workout: Workout) => {
     Alert.alert(
       workout.type,
-      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`
+      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`,
+      [
+        {
+          text: 'Editar',
+          onPress: () => handleEdit(workout),
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => handleDelete(workout),
+          style: 'destructive',
+        },
+        {
+          text: 'Cerrar',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  // Función para editar
+  const handleEdit = (workout: Workout) => {
+    (navigation as any).navigate('AddWorkout', { workoutToEdit: workout });
+  };
+
+  // Función para eliminar
+  const handleDelete = (workout: Workout) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que querés eliminar este entrenamiento?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const existingWorkouts = await loadWorkouts();
+              const updatedWorkouts = existingWorkouts.filter(w => w.id !== workout.id);
+              await saveWorkouts(updatedWorkouts);
+              
+              // Recargar datos
+              await loadInitialData();
+              
+              Alert.alert('Eliminado', 'El entrenamiento fue eliminado correctamente');
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo eliminar el entrenamiento');
+              console.error(error);
+            }
+          },
+        },
+      ]
     );
   };
 
   // Función que se ejecuta al tocar el botón +
   const handleAddPress = () => {
-    navigation.navigate('AddWorkout');
+    navigation.navigate('AddWorkout' as never);
   };
 
   if (loading) {
