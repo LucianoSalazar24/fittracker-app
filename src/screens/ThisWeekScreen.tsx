@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 8,
+    paddingBottom: 20,
   },
   emptyList: {
     flex: 1,

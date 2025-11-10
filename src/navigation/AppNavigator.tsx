@@ -22,16 +22,20 @@ const MainTabs = () => {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e0e0e0',
-          paddingBottom: 8,
+          paddingBottom: 12,
           paddingTop: 8,
           height: 'auto',
-          minHeight: 60,
+          minHeight: 65,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginBottom: 6,
         },
         headerShown: false,
+        tabBarItemStyle: {
+          paddingVertical: 4,
+        },
       }}
     >
       <Tab.Screen
