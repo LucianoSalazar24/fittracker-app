@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Workout, WorkoutType } from '../types/types';
 import { loadWorkouts } from '../utils/storage';
 import { WORKOUT_COLORS, WORKOUT_ICONS } from '../constants/constants';
@@ -15,12 +16,11 @@ const StatsScreen = () => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  useFocusEffect(
+    React.useCallback(() => {
       loadData();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    }, [])
+  );
 
   const loadData = async () => {
     const savedWorkouts = await loadWorkouts();

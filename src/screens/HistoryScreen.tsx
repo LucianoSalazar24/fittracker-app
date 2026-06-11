@@ -35,60 +35,7 @@ const HistoryScreen = () => {
   };
 
   const handleWorkoutPress = (workout: Workout) => {
-    Alert.alert(
-      workout.type,
-      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`,
-      [
-        {
-          text: 'Editar',
-          onPress: () => handleEdit(workout),
-        },
-        {
-          text: 'Eliminar',
-          onPress: () => handleDelete(workout),
-          style: 'destructive',
-        },
-        {
-          text: 'Cerrar',
-          style: 'cancel',
-        },
-      ]
-    );
-  };
-
-  const handleEdit = (workout: Workout) => {
-    (navigation as any).navigate('AddWorkout', { workoutToEdit: workout });
-  };
-
-  const handleDelete = (workout: Workout) => {
-    Alert.alert(
-      'Confirmar eliminación',
-      '¿Estás seguro de que querés eliminar este entrenamiento?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const existingWorkouts = await loadWorkouts();
-              const updatedWorkouts = existingWorkouts.filter(w => w.id !== workout.id);
-              await saveWorkouts(updatedWorkouts);
-              
-              await loadData();
-              
-              Alert.alert('Eliminado', 'El entrenamiento fue eliminado correctamente');
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar el entrenamiento');
-              console.error(error);
-            }
-          },
-        },
-      ]
-    );
+    (navigation as any).navigate('WorkoutDetail', { workout });
   };
 
   if (loading) {

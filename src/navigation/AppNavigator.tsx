@@ -6,6 +6,7 @@ import ThisWeekScreen from '../screens/ThisWeekScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import StatsScreen from '../screens/StatsScreen';
 import AddWorkoutScreen from '../screens/AddWorkoutScreen';
+import WorkoutDetailScreen from '../screens/WorkoutDetailScreen';
 import { MainTabParamList, RootStackParamList } from '../types/types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -86,6 +87,13 @@ const AppNavigator = () => {
         component={AddWorkoutScreen}
         options={{
           presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="WorkoutDetail" 
+        component={WorkoutDetailScreen}
+        options={{
           headerShown: false,
         }}
       />

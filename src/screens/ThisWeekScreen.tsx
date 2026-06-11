@@ -7,6 +7,17 @@ import { Workout } from '../types/types';
 import WorkoutCard from '../components/WorkoutCard';
 import EmptyState from '../components/EmptyState';
 import { loadWorkouts, saveWorkouts } from '../utils/storage';
+import { isThisWeek } from '../utils/dateUtils';
+
+// Helper para generar fechas relativas a hoy para los datos iniciales
+const getRelativeISO = (offsetDays: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const ThisWeekScreen = () => {
   const navigation = useNavigation();
@@ -29,6 +40,7 @@ const ThisWeekScreen = () => {
 
   const loadInitialData = async () => {
     const savedWorkouts = await loadWorkouts();
+    let allWorkouts = savedWorkouts;
     
     // Si no hay datos guardados, usar datos de ejemplo
     if (savedWorkouts.length === 0) {
@@ -36,103 +48,49 @@ const ThisWeekScreen = () => {
         {
           id: '1',
           type: 'Cardio',
-          date: '2025-10-20',
+          date: getRelativeISO(-2),
           duration: 45,
           notes: 'Running matutino por el parque'
         },
         {
           id: '2',
           type: 'Fuerza',
-          date: '2025-10-22',
+          date: getRelativeISO(-1),
           duration: 60,
           notes: 'Día de espalda y biceps'
         },
         {
           id: '3',
           type: 'Yoga',
-          date: '2025-10-23',
+          date: getRelativeISO(0),
           duration: 30,
         },
         {
           id: '4',
           type: 'Funcional',
-          date: '2025-10-24',
+          date: getRelativeISO(-3),
           duration: 40,
           notes: 'Circuito de Funcional'
         }
       ];
-      setWorkouts(initialWorkouts);
+      allWorkouts = initialWorkouts;
       await saveWorkouts(initialWorkouts);
-    } else {
-      // Ordenar por fecha: más reciente primero
-      const sortedWorkouts = savedWorkouts.sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      setWorkouts(sortedWorkouts);
     }
     
+    // Ordenar por fecha: más reciente primero
+    const sortedWorkouts = allWorkouts.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    
+    // Filtrar para mostrar solo los de esta semana
+    const thisWeeksWorkouts = sortedWorkouts.filter(w => isThisWeek(w.date));
+    setWorkouts(thisWeeksWorkouts);
     setLoading(false);
   };
 
-  // Función que muestra opciones al tocar una tarjeta
+  // Función que navega al detalle de un entrenamiento
   const handleWorkoutPress = (workout: Workout) => {
-    Alert.alert(
-      workout.type,
-      `Duración: ${workout.duration} minutos\nFecha: ${workout.date}\n${workout.notes || 'Sin notas'}`,
-      [
-        {
-          text: 'Editar',
-          onPress: () => handleEdit(workout),
-        },
-        {
-          text: 'Eliminar',
-          onPress: () => handleDelete(workout),
-          style: 'destructive',
-        },
-        {
-          text: 'Cerrar',
-          style: 'cancel',
-        },
-      ]
-    );
-  };
-
-  // Función para editar
-  const handleEdit = (workout: Workout) => {
-    (navigation as any).navigate('AddWorkout', { workoutToEdit: workout });
-  };
-
-  // Función para eliminar
-  const handleDelete = (workout: Workout) => {
-    Alert.alert(
-      'Confirmar eliminación',
-      '¿Estás seguro de que querés eliminar este entrenamiento?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const existingWorkouts = await loadWorkouts();
-              const updatedWorkouts = existingWorkouts.filter(w => w.id !== workout.id);
-              await saveWorkouts(updatedWorkouts);
-              
-              // Recargar datos
-              await loadInitialData();
-              
-              Alert.alert('Eliminado', 'El entrenamiento fue eliminado correctamente');
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar el entrenamiento');
-              console.error(error);
-            }
-          },
-        },
-      ]
-    );
+    (navigation as any).navigate('WorkoutDetail', { workout });
   };
 
   // Función que se ejecuta al tocar el botón +
